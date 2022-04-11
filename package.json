@@ -1,6 +1,6 @@
 {
   "name": "bittorrent-fetch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "coming soon",
   "main": "index.js",
   "scripts": {
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/resession/bt-fetch.git"
+    "url": "git+https://github.com/resession/bittorrent-fetch.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/resession/bt-fetch/issues"
+    "url": "https://github.com/resession/bittorrent-fetch/issues"
   },
-  "homepage": "https://github.com/resession/bt-fetch#readme",
+  "homepage": "https://github.com/resession/bittorrent-fetch#readme",
   "dependencies": {
     "bencode": "^2.0.2",
     "busboy": "^1.5.0",

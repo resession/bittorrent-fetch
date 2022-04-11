@@ -1,0 +1,32 @@
+{
+  "name": "bittorrent-fetch",
+  "version": "1.0.0",
+  "description": "coming soon",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/resession/bt-fetch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/resession/bt-fetch/issues"
+  },
+  "homepage": "https://github.com/resession/bt-fetch#readme",
+  "dependencies": {
+    "bencode": "^2.0.2",
+    "busboy": "^1.5.0",
+    "ed25519-supercop": "^2.0.1",
+    "fs-extra": "^10.0.1",
+    "make-fetch": "^2.3.1",
+    "mime": "^3.0.0",
+    "range-parser": "^1.2.1",
+    "simple-sha1": "^3.1.0",
+    "stream-async-iterator": "^2.0.0",
+    "webtorrent": "^1.8.13"
+  }
+}

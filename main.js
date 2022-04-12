@@ -37,15 +37,15 @@ class Main {
 
     this._current = finalOpts.current
     this._folder = finalOpts.folder
-    this._storage = this._folder + path.sep + finalOpts.storage
-    this._author = this._folder + path.sep + finalOpts.author
+    this._storage = path.join(this._folder, finalOpts.storage)
+    this._author = path.join(this._folder, finalOpts.author)
     if (!fs.pathExistsSync(this._storage)) {
       fs.ensureDirSync(this._storage)
     }
     if (!fs.pathExistsSync(this._author)) {
       fs.ensureDirSync(this._author)
     }
-    this.webtorrent = new WebTorrent({ dht: { verify: ed.verify } })
+    this.webtorrent = finalOpts.webtorrent ? finalOpts.webtorrent : new WebTorrent({ dht: { verify: ed.verify } })
     this.webtorrent.on('error', error => {
       console.error(error)
     })
@@ -57,9 +57,9 @@ class Main {
     // run the keepUpdated function every 1 hour, it keep the data active by putting the data back into the dht, don't run it if it is still working from the last time it ran the keepUpdated function
     this.updateRoutine = setInterval(() => {
       if (this._readyToGo) {
-        this.keepUpdated().catch(error => { console.error(error) })
+        this.keepUpdated().then(data => console.log('routine update had an resolve', data)).catch(error => console.error('routine update had a reject', error))
       }
-    }, 3600000)
+    }, 1800000)
   }
 
   // keep data active in the dht, runs every hour
@@ -74,7 +74,7 @@ class Main {
       } catch (err) {
         console.error(err)
       }
-      await new Promise((resolve, reject) => setTimeout(resolve, 3000))
+      await new Promise((resolve, reject) => setTimeout(resolve, 4000))
     }
     for (const torrent of this.webtorrent.torrents) {
       if (torrent.address && !torrent.own) {
@@ -83,7 +83,7 @@ class Main {
         } catch (err) {
           console.error(err)
         }
-        await new Promise((resolve, reject) => setTimeout(resolve, 3000))
+        await new Promise((resolve, reject) => setTimeout(resolve, 4000))
       }
     }
     this._readyToGo = true
@@ -191,8 +191,10 @@ class Main {
   }
 
   async loadTorrent(id){
-    let mainData = this.findTheTorrent(id)
-    if(mainData) return mainData
+    const mainData = this.findTheTorrent(id)
+    if(mainData){
+      return mainData
+    }
 
     const folderPath = path.join(this._storage, id)
     const authorPath = path.join(this._author, id)
@@ -332,7 +334,10 @@ class Main {
       //   this.delayTimeOut(this._timeout, new Error('took too long to write to disk'), false),
       //   this.handleFormData(folderPath, headers, data)
       // ])
-      await this.handleFormData(folderPath, headers, data)
+      const additionalData = await this.handleFormData(folderPath, headers, data)
+      if(additionalData.length){
+        await fs.writeFile(path.join(folderPath, Date.now() + '-data.txt'), `Outercon\n\n${additionalData.map(file => {return file.key + ': ' + file.value + '\n'})}`)
+      }
       const checkFolderPath = await fs.readdir(folderPath, { withFileTypes: false })
       if (!checkFolderPath.length) {
         await fs.remove(folderPath)
@@ -422,6 +427,10 @@ class Main {
     }
   }
   async shredTorrent(id){
+    const folderPath = path.join(this._storage, id)
+    if(!await fs.pathExists(folderPath)){
+      throw new Error('did not find any torrent data to delete')
+    }
     const activeTorrent = this.findTheTorrent(id)
     if(activeTorrent){
       await new Promise((resolve, reject) => {
@@ -434,12 +443,9 @@ class Main {
         })
       })
     }
-    const folderPath = path.join(this._storage, id)
-    const authorPath = path.join(this._author, id)
-    if(!await fs.pathExists(folderPath)){
-      throw new Error('did not find any torrent data to delete')
-    }
     await fs.remove(folderPath)
+
+    const authorPath = path.join(this._author, id)
     if(await fs.pathExists(authorPath)){
       await fs.remove(authorPath)
     }
@@ -460,14 +466,19 @@ class Main {
     const bb = busboy({ headers })
 
     return new Promise((resolve, reject) => {
+      const textData = []
       function handleRemoval () {
+        bb.off('field', handleFields)
         bb.off('file', handleFiles)
         bb.off('error', handleErrors)
         bb.off('finish', handleFinish)
       }
+      function handleFields (key, value) {
+        console.log(key, value)
+        textData.push({key, value})
+      }
       function handleFiles (name, file, info) {
-        // fs.writeFile(path.join(folderPath, info.filename), Readable.from(file))
-        // const saveTo = fs.createWriteStream(path.join(folderPath, info.filename))
+        console.log(name, file, info)
         Readable.from(file).pipe(fs.createWriteStream(path.join(folderPath, info.filename)))
       }
       function handleErrors (error) {
@@ -476,8 +487,9 @@ class Main {
       }
       function handleFinish () {
         handleRemoval()
-        resolve(null)
+        resolve(textData)
       }
+      bb.on('field', handleFields)
       bb.on('file', handleFiles)
       bb.on('error', handleErrors)
       bb.on('finish', handleFinish)

@@ -17,13 +17,13 @@ const DEFAULT_OPTS = {
 module.exports = function makeBTFetch (opts = {}) {
   const finalOpts = { ...DEFAULT_OPTS, ...opts }
 
-  const SUPPORTED_METHODS = ['GET', 'POST', 'DELETE', 'HEAD']
+  const SUPPORTED_METHODS = ['GET', 'PUT', 'DELETE', 'HEAD']
   // const sideType = '-'
   const hostType = '_'
 
   const app = new Main(finalOpts)
 
-  const prog = new Map()
+  // const prog = new Map()
 
   // async function getBody (body) {
   //   let mainData = ''
@@ -113,7 +113,7 @@ module.exports = function makeBTFetch (opts = {}) {
           const torrentData = await app.loadTorrent(mid.mainHost)
           let foundFile = null
           if (mid.mainPath === '/') {
-            return {statusCode: 200, headers: {'Content-Type': mainRes, 'Content-Length': String(torrentData.length)}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div>${torrentData.files.map(file => { return `<p><a href="/${file.urlPath}">${file.name}</a></p>` })}</div></body></html>`] : [JSON.stringify(torrentData.files.map(file => { return `/${file.urlPath}` }))]}
+            return {statusCode: 200, headers: {'Content-Type': mainRes, 'Content-Length': String(torrentData.length)}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div>${torrentData.files.map(file => { return `<p><a href="${file.urlPath}">${file.name}</a></p>` })}</div></body></html>`] : [JSON.stringify(torrentData.files.map(file => { return `${file.urlPath}` }))]}
           } else {
             foundFile = torrentData.files.find(file => { return mid.mainPath === file.urlPath })
             if (foundFile) {
@@ -151,15 +151,6 @@ module.exports = function makeBTFetch (opts = {}) {
             } else {
               const torrentData = await app.publishTorrent(update, {title: reqHeaders['x-title']}, count, reqHeaders, body)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>infohash: ${torrentData.infohash}</p><p>title: ${torrentData.title}</p></div></body></html>`] : [JSON.stringify({ hash: torrentData.hash, title: torrentData.title })]}
-              // if(prog.has(reqHeaders['x-title'])){}
-              // if(reqHeaders['x-redo'] &&)
-              // torrentData = await app.publishTorrent(update, {redo: reqHeaders['x-redo'], title: reqHeaders['x-title']}, null, headers, body)
-              // prog.set(torrentData.title, torrentData.torrent)
-              // if(!reqHeaders['x-title'] || !checkTitle.test(reqHeaders['x-title'])){
-              //   return {statusCode: 400, headers: mainRes, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have title</p></div></body></html>'] : [JSON.stringify('must have title')]}
-              // } else {
-
-              // }
             }
           }
         } else {
@@ -171,7 +162,7 @@ module.exports = function makeBTFetch (opts = {}) {
               const torrentData = await app.publishTorrent(update, {address: mid.mainHost, secret: reqHeaders['authorization']}, count, reqHeaders, body)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>address: ${torrentData.address}</p><p>secret: ${torrentData.secret}</p></div></body></html>`] : [JSON.stringify({ address: torrentData.address, secret: torrentData.secret })]}
             } else {
-              const torrentData = await app.publishTorrent(update, {sub: mid.mainHost, title: reqHeaders['x-title']}, count, reqHeaders, body)
+              const torrentData = await app.publishTorrent(update, {sub: reqHeaders['x-sub'], title: mid.mainHost}, count, reqHeaders, body)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>infohash: ${torrentData.infohash}</p><p>title: ${torrentData.title}</p></div></body></html>`] : [JSON.stringify({ hash: torrentData.hash, title: torrentData.title })]}
             }
           }

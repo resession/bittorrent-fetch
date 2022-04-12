@@ -1,7 +1,6 @@
 const WebTorrent = require('webtorrent')
 const fs = require('fs-extra')
 const path = require('path')
-const crypto = require('crypto')
 const sha1 = require('simple-sha1')
 const ed = require('ed25519-supercop')
 const bencode = require('bencode')
@@ -45,7 +44,16 @@ class Main {
     if (!fs.pathExistsSync(this._author)) {
       fs.ensureDirSync(this._author)
     }
-    this.webtorrent = finalOpts.webtorrent ? finalOpts.webtorrent : new WebTorrent({ dht: { verify: ed.verify } })
+
+    this.webtorrent = (() => {
+      if(finalOpts.webtorrent){
+        return finalOpts.webtorrent
+      } else {
+        const WebTorrent = require('webtorrent')
+        return new WebTorrent({ dht: { verify: ed.verify } })
+      }
+    })(finalOpts)
+    
     this.webtorrent.on('error', error => {
       console.error(error)
     })
@@ -402,7 +410,10 @@ class Main {
       //   this.delayTimeOut(this._timeout, new Error('took too long to write to disk'), false),
       //   this.handleFormData(folderPath, headers, data)
       // ])
-      await this.handleFormData(folderPath, headers, data)
+      const additionalData = await this.handleFormData(folderPath, headers, data)
+      if(additionalData.length){
+        await fs.writeFile(path.join(folderPath, Date.now() + '-data.txt'), `Outercon\n\n${additionalData.map(file => {return file.key + ': ' + file.value + '\n'})}`)
+      }
       const checkFolderPath = await fs.readdir(folderPath, { withFileTypes: false })
       if (!checkFolderPath.length) {
         await fs.remove(folderPath)

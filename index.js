@@ -8,11 +8,7 @@ const parseRange = require('range-parser')
 const checkHash = /^[a-fA-F0-9]{40}$/
 const checkAddress = /^[a-fA-F0-9]{64}$/
 const checkTitle = /^[a-zA-Z0-9]/gi
-const DEFAULT_OPTS = {
-  folder: __dirname,
-  storage: 'storage',
-  author: 'author'
-}
+const DEFAULT_OPTS = {}
 
 module.exports = function makeBTFetch (opts = {}) {
   const finalOpts = { ...DEFAULT_OPTS, ...opts }

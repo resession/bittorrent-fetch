@@ -24,7 +24,7 @@ function encodeSigData (msg) {
 const checkHash = /^[a-fA-F0-9]{40}$/
 const checkAddress = /^[a-fA-F0-9]{64}$/
 const checkTitle = /^[a-zA-Z0-9]/
-const defOpts = { folder: __dirname, storage: 'storage', author: 'author', current: true, timeout: 60000}
+const defOpts = { current: true, timeout: 60000}
 
 class Main {
   constructor (opts = {}) {
@@ -485,11 +485,9 @@ class Main {
         bb.off('finish', handleFinish)
       }
       function handleFields (key, value) {
-        console.log(key, value)
         textData.push({key, value})
       }
       function handleFiles (name, file, info) {
-        console.log(name, file, info)
         Readable.from(file).pipe(fs.createWriteStream(path.join(folderPath, info.filename)))
       }
       function handleErrors (error) {

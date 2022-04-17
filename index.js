@@ -8,7 +8,7 @@ const parseRange = require('range-parser')
 const checkHash = /^[a-fA-F0-9]{40}$/
 const checkAddress = /^[a-fA-F0-9]{64}$/
 const checkTitle = /^[a-zA-Z0-9]/gi
-const DEFAULT_OPTS = {}
+const DEFAULT_OPTS = { folder: __dirname, storage: 'storage', author: 'author' }
 
 module.exports = function makeBTFetch (opts = {}) {
   const finalOpts = { ...DEFAULT_OPTS, ...opts }
@@ -137,7 +137,7 @@ module.exports = function makeBTFetch (opts = {}) {
         const count = reqHeaders['x-version'] && !isNaN(reqHeaders['x-version']) ? Number(reqHeaders['x-version']) : null
         if (mid.mainQuery) {
           if ((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'false' && !reqHeaders['x-title']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || !body) {
-            return {statusCode: 400, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body</p></div></body></html>'] : [JSON.stringify('must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body')]}
+            return {statusCode: 400, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body, also must have X-Title header for non-BEP46 torrents</p></div></body></html>'] : [JSON.stringify('must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body, also must have X-Title header for non-BEP46 torrents')]}
           } else {
             const update = JSON.parse(reqHeaders['x-update'])
             // const torrentData = await app.publishTorrent(update, null, count, reqHeaders, body)
@@ -150,8 +150,8 @@ module.exports = function makeBTFetch (opts = {}) {
             }
           }
         } else {
-          if((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'true' && !reqHeaders['authorization']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || !body){
-            return {statusCode: 400, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body</p></div></body></html>'] : [JSON.stringify('must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body')]}
+          if((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'true' && !reqHeaders['x-authentication']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || !body){
+            return {statusCode: 400, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body, also must have X-Authentication header for BEP46 torrents</p></div></body></html>'] : [JSON.stringify('must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body')]}
           } else {
             const update = JSON.parse(reqHeaders['x-update'])
             if(update){

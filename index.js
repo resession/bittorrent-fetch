@@ -1,6 +1,6 @@
 const makeFetch = require('make-fetch')
 const path = require('path')
-const Main = require('./main.js')
+const Torrentz = require('torrentz')
 const streamToIterator = require('stream-async-iterator')
 const mime = require('mime/lite')
 const parseRange = require('range-parser')
@@ -17,7 +17,7 @@ module.exports = function makeBTFetch (opts = {}) {
   // const sideType = '-'
   const hostType = '_'
 
-  const app = new Main(finalOpts)
+  const app = new Torrentz(finalOpts)
 
   // const prog = new Map()
 
@@ -106,7 +106,7 @@ module.exports = function makeBTFetch (opts = {}) {
         if (mid.mainQuery) {
           return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>Thank you for using Bittorrent-Fetch-Fetch</p></div></body></html>'] : [JSON.stringify('Thank you for using BT-Fetch')]}
         } else {
-          const torrentData = await app.loadTorrent(mid.mainHost)
+          const torrentData = await app.loadTorrent(mid.mainHost, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
           let foundFile = null
           if (mid.mainPath === '/') {
             return {statusCode: 200, headers: {'Content-Type': mainRes, 'Content-Length': String(torrentData.length)}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div>${torrentData.files.map(file => { return `<p><a href="${file.urlPath}">${file.name}</a></p>` })}</div></body></html>`] : [JSON.stringify(torrentData.files.map(file => { return `${file.urlPath}` }))]}
@@ -142,10 +142,10 @@ module.exports = function makeBTFetch (opts = {}) {
             const update = JSON.parse(reqHeaders['x-update'])
             // const torrentData = await app.publishTorrent(update, null, count, reqHeaders, body)
             if(update){
-              const torrentData = await app.publishTorrent(update, null, count, reqHeaders, body)
+              const torrentData = await app.publishTorrent(update, null, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>address: ${torrentData.address}</p><p>secret: ${torrentData.secret}</p></div></body></html>`] : [JSON.stringify({ address: torrentData.address, secret: torrentData.secret })]}
             } else {
-              const torrentData = await app.publishTorrent(update, {title: reqHeaders['x-title']}, count, reqHeaders, body)
+              const torrentData = await app.publishTorrent(update, {title: reqHeaders['x-title']}, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>infohash: ${torrentData.infohash}</p><p>title: ${torrentData.title}</p></div></body></html>`] : [JSON.stringify({ hash: torrentData.hash, title: torrentData.title })]}
             }
           }
@@ -155,10 +155,10 @@ module.exports = function makeBTFetch (opts = {}) {
           } else {
             const update = JSON.parse(reqHeaders['x-update'])
             if(update){
-              const torrentData = await app.publishTorrent(update, {address: mid.mainHost, secret: reqHeaders['authorization']}, count, reqHeaders, body)
+              const torrentData = await app.publishTorrent(update, {address: mid.mainHost, secret: reqHeaders['authorization']}, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>address: ${torrentData.address}</p><p>secret: ${torrentData.secret}</p></div></body></html>`] : [JSON.stringify({ address: torrentData.address, secret: torrentData.secret })]}
             } else {
-              const torrentData = await app.publishTorrent(update, {sub: reqHeaders['x-sub'], title: mid.mainHost}, count, reqHeaders, body)
+              const torrentData = await app.publishTorrent(update, {sub: reqHeaders['x-sub'], title: mid.mainHost}, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>infohash: ${torrentData.infohash}</p><p>title: ${torrentData.title}</p></div></body></html>`] : [JSON.stringify({ hash: torrentData.hash, title: torrentData.title })]}
             }
           }

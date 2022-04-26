@@ -155,7 +155,7 @@ module.exports = function makeBTFetch (opts = {}) {
           } else {
             const update = JSON.parse(reqHeaders['x-update'])
             if(update){
-              const torrentData = await app.publishTorrent(update, {address: mid.mainHost, secret: reqHeaders['authorization']}, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
+              const torrentData = await app.publishTorrent(update, {address: mid.mainHost, secret: reqHeaders['x-authentication']}, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
               return {statusCode: 200, headers: {'Content-Type': mainRes}, data: mainReq ? [`<html><head><title>${torrentData.name}</title></head><body><div><p>address: ${torrentData.address}</p><p>secret: ${torrentData.secret}</p></div></body></html>`] : [JSON.stringify({ address: torrentData.address, secret: torrentData.secret })]}
             } else {
               const torrentData = await app.publishTorrent(update, {sub: reqHeaders['x-sub'], title: mid.mainHost}, count, reqHeaders, body, reqHeaders['x-timer'] && reqHeaders['x-timer'] !== '0' ? Number(reqHeaders['x-timer']) * 1000 : 0)
@@ -178,7 +178,11 @@ module.exports = function makeBTFetch (opts = {}) {
         return { statusCode: 400, headers: { 'Content-Type': mainRes }, data: mainReq ? [`<html><head><title>Bittorrent-Fetch</title></head><body><div><p>method is not supported</p></div></body></html>`] : [] }
       }
     } catch (e) {
-      return { statusCode: 500, headers: {}, data: [e.stack] }
+      if(e.name === 'ErrorTimeout'){
+        return { statusCode: 408, headers: {}, data: [e.stack] }
+      } else {
+        return { statusCode: 500, headers: {}, data: [e.stack] }
+      }
     }
   })
 

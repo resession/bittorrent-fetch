@@ -1,6 +1,4 @@
 const makeFetch = require('make-fetch')
-const path = require('path')
-const Torrentz = require('torrentz')
 const streamToIterator = require('stream-async-iterator')
 const mime = require('mime/lite')
 const parseRange = require('range-parser')
@@ -17,7 +15,7 @@ module.exports = function makeBTFetch (opts = {}) {
   // const sideType = '-'
   const hostType = '_'
 
-  const app = new Torrentz(finalOpts)
+  const app = finalOpts.torrentz
 
   // const prog = new Map()
 

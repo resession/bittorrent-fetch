@@ -21,7 +21,8 @@
     "make-fetch": "^2.3.1",
     "mime": "^3.0.0",
     "range-parser": "^1.2.1",
-    "stream-async-iterator": "^2.0.0"
+    "stream-async-iterator": "^2.0.0",
+    "torrentz": "^1.0.6"
   },
   "devDependencies": {
     "form-data": "^4.0.0",

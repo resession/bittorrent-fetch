@@ -2,17 +2,19 @@ const makeFetch = require('make-fetch')
 const streamToIterator = require('stream-async-iterator')
 const mime = require('mime/lite')
 const parseRange = require('range-parser')
+const Torrentz = require('torrentz')
 
 const checkHash = /^[a-fA-F0-9]{40}$/
 const checkAddress = /^[a-fA-F0-9]{64}$/
 const checkTitle = /^[a-zA-Z0-9]/
+// const DEFAULT_OPTS = {}
 
-module.exports = function makeBTFetch ({torrentz}) {
-  const finalOpts = { ...DEFAULT_OPTS, ...opts }
+module.exports = function makeBTFetch (opts = {}) {
+  // const finalOpts = { ...DEFAULT_OPTS, ...opts }
   const SUPPORTED_METHODS = ['GET', 'PUT', 'DELETE', 'HEAD']
   const hostType = '_'
 
-  const app = torrentz
+  const app = new Torrentz(opts)
 
   // const prog = new Map()
 

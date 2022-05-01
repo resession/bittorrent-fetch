@@ -6,14 +6,13 @@ const parseRange = require('range-parser')
 const checkHash = /^[a-fA-F0-9]{40}$/
 const checkAddress = /^[a-fA-F0-9]{64}$/
 const checkTitle = /^[a-zA-Z0-9]/
-const DEFAULT_OPTS = {}
 
-module.exports = function makeBTFetch (opts = {}) {
+module.exports = function makeBTFetch ({torrentz}) {
   const finalOpts = { ...DEFAULT_OPTS, ...opts }
   const SUPPORTED_METHODS = ['GET', 'PUT', 'DELETE', 'HEAD']
   const hostType = '_'
 
-  const app = finalOpts.torrentz
+  const app = torrentz
 
   // const prog = new Map()
 

@@ -6,28 +6,16 @@ const parseRange = require('range-parser')
 const checkHash = /^[a-fA-F0-9]{40}$/
 const checkAddress = /^[a-fA-F0-9]{64}$/
 const checkTitle = /^[a-zA-Z0-9]/
-const DEFAULT_OPTS = { folder: __dirname, storage: 'storage', author: 'author' }
+const DEFAULT_OPTS = {}
 
 module.exports = function makeBTFetch (opts = {}) {
   const finalOpts = { ...DEFAULT_OPTS, ...opts }
-
   const SUPPORTED_METHODS = ['GET', 'PUT', 'DELETE', 'HEAD']
-  // const sideType = '-'
   const hostType = '_'
 
   const app = finalOpts.torrentz
 
   // const prog = new Map()
-
-  // async function getBody (body) {
-  //   let mainData = ''
-
-  //   for await (const data of body) {
-  //     mainData += data
-  //   }
-
-  //   return mainData
-  // }
 
   function getMimeType (path) {
     let mimeType = mime.getType(path) || 'text/plain'

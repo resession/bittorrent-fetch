@@ -123,7 +123,7 @@ module.exports = function makeBTFetch (opts = {}) {
         const mainRes = mainReq ? 'text/html; charset=utf-8' : 'application/json; charset=utf-8'
         const count = reqHeaders['x-version'] && !isNaN(reqHeaders['x-version']) ? Number(reqHeaders['x-version']) : null
         if (mid.mainQuery) {
-          if ((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'false' && !reqHeaders['x-title']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || !body) {
+          if ((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'false' && !reqHeaders['x-title']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || ((reqHeaders['x-empty']) && (reqHeaders['x-empty'] !== 'false' && reqHeaders['x-empty'] !== 'true')) || !body) {
             return {statusCode: 400, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body, also must have X-Title header for non-BEP46 torrents</p></div></body></html>'] : [JSON.stringify('must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body, also must have X-Title header for non-BEP46 torrents')]}
           } else {
             const update = JSON.parse(reqHeaders['x-update'])
@@ -137,7 +137,7 @@ module.exports = function makeBTFetch (opts = {}) {
             }
           }
         } else {
-          if((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'true' && !reqHeaders['x-authentication']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || !body){
+          if((!reqHeaders['x-update']) || (reqHeaders['x-update'] !== 'true' && reqHeaders['x-update'] !== 'false') || (reqHeaders['x-update'] === 'true' && !reqHeaders['x-authentication']) || (!reqHeaders['content-type'] || !reqHeaders['content-type'].includes('multipart/form-data')) || ((reqHeaders['x-empty']) && (reqHeaders['x-empty'] !== 'false' && reqHeaders['x-empty'] !== 'true')) || !body){
             return {statusCode: 400, headers: {'Content-Type': mainRes}, data: mainReq ? ['<html><head><title>Bittorrent-Fetch</title></head><body><div><p>must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body, also must have X-Authentication header for BEP46 torrents</p></div></body></html>'] : [JSON.stringify('must have X-Update header which must be set to true or false, must have Content-Type header set to multipart/form-data, must have body')]}
           } else {
             const update = JSON.parse(reqHeaders['x-update'])

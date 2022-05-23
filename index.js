@@ -15,7 +15,7 @@ module.exports = function makeBTFetch (opts = {}) {
   const encodeType = '~'
   const hostType = '_'
 
-  const app = new Torrentz(finalOpts)
+  const app = ((finalOpts) => {if(finalOpts.torrentz){return finalOpts.torrentz}else{return new Torrentz(finalOpts)}})(finalOpts)
 
   // const prog = new Map()
 
@@ -175,8 +175,8 @@ module.exports = function makeBTFetch (opts = {}) {
     }
   })
 
-  fetch.destroy = () => {
-    return new Promise((resolve, reject) => {
+  fetch.close = () => {
+    return await new Promise((resolve, reject) => {
       app.webtorrent.destroy(error => {
         if (error) {
           reject(error)

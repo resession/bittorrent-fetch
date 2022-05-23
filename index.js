@@ -3,18 +3,19 @@ const streamToIterator = require('stream-async-iterator')
 const mime = require('mime/lite')
 const parseRange = require('range-parser')
 const Torrentz = require('torrentz')
-
-const checkHash = /^[a-fA-F0-9]{40}$/
-const checkAddress = /^[a-fA-F0-9]{64}$/
-const checkTitle = /^[a-zA-Z0-9]/
-// const DEFAULT_OPTS = {}
+const path = require('path')
 
 module.exports = function makeBTFetch (opts = {}) {
-  // const finalOpts = { ...DEFAULT_OPTS, ...opts }
+  const DEFAULT_OPTS = {}
+  const finalOpts = { ...DEFAULT_OPTS, ...opts }
+  const checkHash = /^[a-fA-F0-9]{40}$/
+  const checkAddress = /^[a-fA-F0-9]{64}$/
+  const checkTitle = /^[a-zA-Z0-9]/
   const SUPPORTED_METHODS = ['GET', 'PUT', 'DELETE', 'HEAD']
+  const encodeType = '~'
   const hostType = '_'
 
-  const app = new Torrentz(opts)
+  const app = new Torrentz(finalOpts)
 
   // const prog = new Map()
 
@@ -49,16 +50,17 @@ module.exports = function makeBTFetch (opts = {}) {
 
     try {
       const { hostname, pathname, protocol, searchParams } = new URL(url)
+      const mainHostname = hostname && hostname[0] === encodeType ? Buffer.from(hostname.slice(1), 'hex').toString('utf-8') : hostname
 
       if (protocol !== 'bt:') {
         return { statusCode: 409, headers: {}, data: ['wrong protocol'] }
       } else if (!method || !SUPPORTED_METHODS.includes(method)) {
         return { statusCode: 409, headers: {}, data: ['something wrong with method'] }
-      } else if ((!hostname) || (hostname.length === 1 && hostname !== hostType) || (hostname.length !== 1 && !checkTitle.test(hostname) && !checkHash.test(hostname) && !checkAddress.test(hostname))) {
+      } else if ((!mainHostname) || (mainHostname.length === 1 && mainHostname !== hostType) || (mainHostname.length !== 1 && !checkTitle.test(mainHostname) && !checkHash.test(mainHostname) && !checkAddress.test(mainHostname))) {
         return { statusCode: 409, headers: {}, data: ['something wrong with hostname'] }
       }
 
-      const mid = formatReq(hostname, pathname)
+      const mid = formatReq(mainHostname, pathname)
 
       if(method === 'HEAD'){
         if (mid.mainQuery) {
